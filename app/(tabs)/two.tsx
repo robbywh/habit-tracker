@@ -1,18 +1,37 @@
+import { router } from 'expo-router';
 import { useCallback } from 'react';
-import { FlatList, Text, View } from 'react-native';
+import { Alert, FlatList, Text, View } from 'react-native';
 
 import { HabitManageListItem } from '@/components/habit/habit-manage-list-item';
 import { useHabits } from '@/hooks/use-habits';
 import type { Habit } from '@/lib/habit-types';
 
 export default function ManageHabitsScreen() {
-  const { habits, isLoading } = useHabits();
+  const { habits, isLoading, remove } = useHabits();
 
-  // Edit navigation and delete confirmation land in Task 5, once
-  // `app/habit/[id]/edit.tsx` exists — kept as no-ops here so the row's
-  // affordances exist structurally without wiring an unfinished route.
-  const handlePress = useCallback((_id: string) => {}, []);
-  const handleDelete = useCallback((_id: string) => {}, []);
+  const handlePress = useCallback((id: string) => {
+    router.push({ pathname: '/habit/[id]/edit', params: { id } });
+  }, []);
+
+  const handleDelete = useCallback(
+    (id: string) => {
+      const habit = habits.find((item) => item.id === id);
+      if (!habit) return;
+      Alert.alert(
+        'Delete habit?',
+        `"${habit.name}" and its history will be permanently deleted.`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () => remove(habit.id),
+          },
+        ]
+      );
+    },
+    [habits, remove]
+  );
 
   if (isLoading) {
     return (

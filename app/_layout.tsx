@@ -55,6 +55,10 @@ function RootLayoutNav() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           <Stack.Screen name="habit/new" options={{ presentation: 'modal', title: 'New Habit' }} />
+          <Stack.Screen
+            name="habit/[id]/edit"
+            options={{ presentation: 'modal', title: 'Edit Habit' }}
+          />
         </Stack>
       </HabitsProvider>
     </ThemeProvider>
