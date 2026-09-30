@@ -6,8 +6,8 @@ import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from 'ex
 import { AccessibilityInfo, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { useColorScheme } from '@/components/use-color-scheme';
+import { useClientOnlyValue } from '@/components/use-client-only-value';
 
 function TabBarBackground({ colorScheme }: { colorScheme: 'light' | 'dark' }) {
   const [reduceTransparencyEnabled, setReduceTransparencyEnabled] = useState(false);
