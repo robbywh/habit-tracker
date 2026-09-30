@@ -8,9 +8,11 @@
     "scheme": "habittracker",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.robbywh.habittracker"
     },
     "android": {
+      "package": "com.robbywh.habittracker",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -38,6 +40,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e116036a-ef68-4f83-83f1-be4cd5d53939"
+      }
+    },
+    "owner": "robbywh"
   }
 }
