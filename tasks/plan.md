@@ -84,10 +84,11 @@ today's completion.
 - [ ] Tapping a row calls `toggleToday` and the checkbox updates
 - [ ] Empty state (no habits yet) renders something reasonable, not a blank screen
 **Verification:**
-- [ ] No automated test (route file, per SPEC Testing Strategy) — verify manually via Argent: boot iOS simulator, launch app, confirm Today tab renders and toggle works
-- [ ] `npx expo lint` and `npx tsc --noEmit` pass
+- [x] No automated test (route file, per SPEC Testing Strategy) — verify manually via Argent: boot iOS simulator, launch app, confirm Today tab renders and toggle works
+- [x] `npx expo lint` and `npx tsc --noEmit` pass
 **Dependencies:** Task 2
 **Files likely touched:** `app/_layout.tsx`, `app/(tabs)/index.tsx`, `components/habit/habit-list-item.tsx`
+**Status:** Done — committed `a35bee0`.
 **Estimated scope:** Medium
 
 #### Task 4: Manage Habits screen + create flow
@@ -101,7 +102,7 @@ registered in `app/_layout.tsx`.
 - [ ] Submitting the form with a name + color calls `create` and the modal dismisses back to Manage Habits
 - [ ] The new habit appears on both Manage Habits and Today immediately (shared `HabitsProvider` state)
 **Verification:**
-- [ ] No automated test (route/component files rendering UI, verified manually) — Argent walkthrough: create a habit, confirm it shows on both tabs
+- [ ] No automated test (route/component files rendering UI, verified manually) — Argent walkthrough on **both iOS simulator and Android emulator**: create a habit, confirm it shows on both tabs
 - [ ] `npx expo lint` and `npx tsc --noEmit` pass
 **Dependencies:** Task 3
 **Files likely touched:** `components/habit/habit-form.tsx`, `app/habit/new.tsx`, `app/(tabs)/two.tsx`, `app/_layout.tsx`
@@ -118,7 +119,7 @@ screens.
 - [ ] A delete action prompts `Alert.alert` for confirmation before calling `remove`
 - [ ] After deletion, the habit is gone from both Manage Habits and Today
 **Verification:**
-- [ ] No automated test (route/component UI) — Argent walkthrough: edit a habit's name/color, then delete a habit with confirmation, confirm both screens update
+- [ ] No automated test (route/component UI) — Argent walkthrough on **both iOS simulator and Android emulator**: edit a habit's name/color, then delete a habit with confirmation, confirm both screens update
 - [ ] `npx expo lint` and `npx tsc --noEmit` pass
 **Dependencies:** Task 4
 **Files likely touched:** `app/habit/[id]/edit.tsx`, `app/_layout.tsx`, `app/(tabs)/two.tsx`
@@ -127,7 +128,7 @@ screens.
 ### Checkpoint: Complete
 - [ ] All SPEC.md Success Criteria checked off
 - [ ] `bun run test`, `npx expo lint`, `npx tsc --noEmit` all pass
-- [ ] Full manual Argent walkthrough: create → toggle → edit → delete → kill & relaunch app → state persisted
+- [ ] Full manual Argent walkthrough on **both iOS simulator and Android emulator**: create → toggle → edit → delete → kill & relaunch app → state persisted
 - [ ] One commit per task, clean working tree, ready for review
 
 ## Risks and Mitigations

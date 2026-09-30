@@ -220,15 +220,22 @@ call itself errors or times out, default to Sonnet 5 and say so.
 
 - [ ] User can create a habit (name + color) from the "Manage Habits" screen.
 - [ ] New habit appears immediately on the "Today" screen.
-- [ ] Tapping a habit on "Today" toggles its completion for today's date and persists across app restart.
+- [x] Tapping a habit on "Today" toggles its completion for today's date and persists across app restart.
 - [ ] User can edit a habit's name/color.
 - [ ] User can delete a habit (with confirmation), removing it from both screens.
-- [ ] All state survives a full app kill + relaunch (AsyncStorage-backed).
-- [ ] `npx expo lint` and `npx tsc --noEmit` pass with no errors.
-- [ ] `lib/` and `hooks/` unit tests pass.
+- [ ] All state survives a full app kill + relaunch (AsyncStorage-backed) — true today for the Today screen's toggle state; remaining once create/edit/delete land.
+- [x] `npx expo lint` and `npx tsc --noEmit` pass with no errors.
+- [x] `lib/` and `hooks/` unit tests pass.
 
-## Open Questions
+**Status:** Task 3 (Today screen — list + toggle) is implemented and committed
+(`a35bee0`). Remaining for v1: Task 4 (Manage Habits screen + create-habit
+flow) and Task 5 (edit + delete habit). See `tasks/plan.md` / `tasks/todo.md`.
 
-1. Habit color picker: fixed palette (e.g. 6–8 swatches) vs free color picker? Defaulting to fixed palette for v1 simplicity — confirm or override.
-2. Delete confirmation: native `Alert.alert` vs a custom NativeWind sheet? Defaulting to `Alert.alert` for v1 (no new dependency needed).
-3. Should the existing "Tab Two" screen be repurposed as "Manage Habits," or should habit management live behind an "+" button on "Today" instead (single-tab app)? Defaulting to repurposing the second tab, per the Project Structure above.
+## Decisions
+
+Previously open questions, now resolved — treat as settled, not up for
+re-litigation absent a new explicit override:
+
+1. **Habit color picker:** fixed palette (the swatches in `constants/habit-colors.ts`), not a free color picker.
+2. **Delete confirmation:** native `Alert.alert`, no new dependency.
+3. **Habit management placement:** the existing second tab ("Tab Two") is repurposed as "Manage Habits," not a single-tab app with a "+" on "Today."
