@@ -1,29 +1,31 @@
 // Shared habits state for the v1 habit tracker.
 //
-// STAGE 1 (current): in-memory stub. State lives in a React Context so every
-// screen that calls `useHabits()` sees the same list and the same updates —
-// there is no per-component copy. `mobile-developer`: mount `HabitsProvider`
-// once, high enough that both the "Today" and "Manage Habits" screens (and
-// the create/edit modals) are inside it — e.g. wrapping the root stack in
-// `app/_layout.tsx`. This file does not touch `app/**`.
+// State lives in a React Context so every screen that calls `useHabits()`
+// sees the same list and the same updates — there is no per-component copy.
+// Mount `HabitsProvider` once, high enough that both the "Today" and "Manage
+// Habits" screens (and the create/edit modals) are inside it — e.g. wrapping
+// the root stack in `app/_layout.tsx`. This file does not touch `app/**`.
 //
-// STAGE 2 (follow-up): the body of `HabitsProvider` will load/persist via
-// `lib/habit-storage.ts` (AsyncStorage) behind this exact same public API.
-// The exported types and function signatures below are the contract other
-// workstreams code against and will not change shape.
+// STAGE 2: backed by `lib/habit-storage.ts` (AsyncStorage) — loads on mount
+// (`isLoading` true until resolved) and persists after every mutation. The
+// exported types and function signatures below are the contract other
+// workstreams code against and do not change shape between stages.
 
 import {
   createContext,
   createElement,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
 
 import { getTodayDateKey } from '@/lib/habit-date';
 import { generateHabitId } from '@/lib/habit-id';
+import { loadHabits, saveHabits } from '@/lib/habit-storage';
 import type { Habit } from '@/lib/habit-types';
 
 export type CreateHabitInput = {
@@ -59,10 +61,29 @@ const HabitsContext = createContext<UseHabitsResult | undefined>(undefined);
  */
 export function HabitsProvider({ children }: { children: ReactNode }) {
   const [habits, setHabits] = useState<Habit[]>([]);
-  // Stage 1 stub holds everything in memory synchronously, so there is
-  // nothing to await on mount. Stage 2 will flip this to `true` until the
-  // initial AsyncStorage read resolves.
-  const [isLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  // Guards against persisting the empty initial state over whatever's
+  // already on disk before the initial load has resolved.
+  const hasLoadedRef = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadHabits().then((loaded) => {
+      if (cancelled) return;
+      hasLoadedRef.current = true;
+      setHabits(loaded);
+      setIsLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Persists on every change once the initial load has resolved.
+  useEffect(() => {
+    if (!hasLoadedRef.current) return;
+    saveHabits(habits);
+  }, [habits]);
 
   const create = useCallback(async (input: CreateHabitInput): Promise<Habit> => {
     const habit: Habit = {
