@@ -1,11 +1,38 @@
+import { useEffect, useState } from 'react';
 import { SymbolView } from 'expo-symbols';
 import { Link, Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
-import { Platform, Pressable, StyleSheet } from 'react-native';
+import { GlassView, isGlassEffectAPIAvailable, isLiquidGlassAvailable } from 'expo-glass-effect';
+import { AccessibilityInfo, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+
+function TabBarBackground({ colorScheme }: { colorScheme: 'light' | 'dark' }) {
+  const [reduceTransparencyEnabled, setReduceTransparencyEnabled] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+
+    AccessibilityInfo.isReduceTransparencyEnabled().then(setReduceTransparencyEnabled);
+    const subscription = AccessibilityInfo.addEventListener(
+      'reduceTransparencyChanged',
+      setReduceTransparencyEnabled
+    );
+    return () => subscription.remove();
+  }, []);
+
+  if (reduceTransparencyEnabled) {
+    return <View style={[StyleSheet.absoluteFill, { backgroundColor: Colors[colorScheme].background }]} />;
+  }
+
+  if (Platform.OS === 'ios' && isLiquidGlassAvailable() && isGlassEffectAPIAvailable()) {
+    return <GlassView style={StyleSheet.absoluteFill} />;
+  }
+
+  return <BlurView intensity={80} tint="systemMaterial" style={StyleSheet.absoluteFill} />;
+}
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -18,13 +45,7 @@ export default function TabLayout() {
         // to prevent a hydration error in React Navigation v6.
         headerShown: useClientOnlyValue(false, true),
         tabBarStyle: { position: 'absolute' },
-        tabBarBackground: () => (
-          <BlurView
-            intensity={80}
-            tint={colorScheme === 'dark' ? 'dark' : 'light'}
-            style={StyleSheet.absoluteFill}
-          />
-        ),
+        tabBarBackground: () => <TabBarBackground colorScheme={colorScheme} />,
       }}>
       <Tabs.Screen
         name="index"
