@@ -1,0 +1,41 @@
+steps:
+  - echo: "QA: delete habit. Verify cancel is safe, delete persists, and it's gone from Today"
+  - run: create-habit
+  - echo: On Today. Navigate to Manage Habits
+  - tap:
+      id: list.bullet
+  - await: { visible: { text: drink water } }
+  - await: { idle: true }
+  - echo: Tap delete icon, then test Cancel does not delete
+  - tap:
+      id: trash
+  - await: { visible: { text: Delete habit? } }
+  - await: { idle: true }
+  - tap:
+      text: Cancel
+  - await: { visible: { text: drink water } }
+  - await: { idle: true }
+  - echo: Cancel verified safe. Delete the habit for real
+  - tap:
+      id: trash
+  - await: { visible: { text: Delete habit? } }
+  - await: { idle: true }
+  - tap:
+      text: Delete
+  - await: { visible: { text: No habits yet } }
+  - await: { hidden: { text: drink water } }
+  - await: { idle: true }
+  - echo: Deleted, empty state shown. Verify also gone from Today
+  - tap:
+      id: checkmark.circle
+  - await: { visible: { text: No habits yet } }
+  - await: { idle: true }
+  - echo: "Persistence check: restart app, expect deletion to survive"
+  - launch: com.robbywh.habittracker
+  - await: { visible: { text: No habits yet } }
+  - await: { idle: true }
+  - echo: Deletion persisted on Today. Verify Manage Habits also empty
+  - tap:
+      id: list.bullet
+  - await: { visible: { text: No habits yet } }
+  - await: { idle: true }

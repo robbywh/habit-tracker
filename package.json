@@ -46,7 +46,8 @@
     "ios": "EXPO_UNSTABLE_MCP_SERVER=1 bun expo start --ios",
     "web": "EXPO_UNSTABLE_MCP_SERVER=1 bun expo start --web",
     "lint": "expo lint",
-    "test": "vitest run --coverage"
+    "test": "vitest run --coverage",
+    "e2e": "bash scripts/e2e-argent.sh"
   },
   "private": true
 }

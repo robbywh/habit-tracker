@@ -1,0 +1,88 @@
+steps:
+  - echo: "QA: create habit. Launch Habit Tracker, expect Today tab"
+  - launch: com.robbywh.habittracker
+  - await: { visible: { text: Today } }
+  - await: { idle: true }
+  - echo: Navigate to Manage Habits
+  - tap:
+      id: list.bullet
+  - await: { visible: { text: Manage Habits } }
+  - await: { idle: true }
+  - echo: Normalize baseline — delete a leftover drink water habit if one exists
+  - when: { visible: { text: drink water } }
+    steps:
+      - tap:
+          id: trash
+      - await: { visible: { text: Delete habit? } }
+      - tap:
+          text: Delete
+      - await: { visible: { text: No habits yet } }
+  - echo: Prove baseline is empty before mutating
+  - assert: { visible: { text: No habits yet } }
+  - await: { idle: true }
+  - echo: Tap + to open New Habit
+  - tap:
+      id: plus
+  - await: { visible: { text: New Habit } }
+  - await: { idle: true }
+  - echo: Enter name, keep default red color
+  - tap:
+      text: e.g. Drink water
+  # delayMs: 300 reduces, but does not reliably eliminate, iOS autocorrect
+  # racing synthetic keystrokes around space characters — see
+  # create-habit.yaml. The retry below gives one corrective re-attempt at a
+  # longer delay before the hard check fails the run.
+  - tool: keyboard
+    args:
+      text: Drink water
+      delayMs: 300
+  - when: { hidden: { text: drink water } }
+    steps:
+      - tap:
+          x: 0.9
+          y: 0.224
+      - tap:
+          text: Select All
+      - tool: keyboard
+        args:
+          key: backspace
+      - tool: keyboard
+        args:
+          text: Drink water
+          delayMs: 400
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: drink water
+  - echo: Tap Create Habit
+  # Coordinate fallback: Create Habit shares its accessible label with its own
+  # text child, and its runner role collides with the Name field's, so no
+  # id/text/role selector resolves it uniquely (see create-habit.yaml).
+  - tap:
+      x: 0.5
+      y: 0.386
+  - await: { visible: { text: drink water } }
+  - await: { idle: true }
+  - echo: Created and listed. Verify it also appears on Today
+  - tap:
+      id: checkmark.circle
+  - await: { visible: { text: drink water } }
+  - await: { idle: true }
+  - echo: "Persistence check: restart app, expect drink water to survive on Today"
+  - launch: com.robbywh.habittracker
+  - await: { visible: { text: drink water } }
+  - await: { idle: true }
+  - echo: Persisted on Today. Verify also persisted in Manage Habits
+  - tap:
+      id: list.bullet
+  - await: { visible: { text: drink water } }
+  - await: { idle: true }
+  - echo: Restore baseline — delete the created habit so the next run starts clean
+  - tap:
+      id: trash
+  - await: { visible: { text: Delete habit? } }
+  - tap:
+      text: Delete
+  - await: { visible: { text: No habits yet } }
+  - await: { idle: true }

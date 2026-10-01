@@ -1,0 +1,47 @@
+steps:
+  - echo: "QA: toggle habit done/not-done, with persistence and absence proofs"
+  - run: create-habit
+  - echo: On Today, drink water seeded not done. Prove not-done baseline
+  # Kept raw: the runner's native view tree treats "selected" as ambiguous —
+  # the active Today tab bar item also carries a "selected" trait natively,
+  # independent of this habit's done state (same finding as toggle-habit.yaml).
+  # A hidden:/visible: directive conversion was verified live to misbehave;
+  # the raw tool: step replays against the accessibility tree it was proven
+  # against and correctly tracks the habit's own done state.
+  - tool: await-ui-element
+    args:
+      condition: hidden
+      selector:
+        text: selected
+  - echo: Tap toggle to mark done
+  # Coordinate fallback: the toggle circle is an unlabeled 28x28 view distinct
+  # from the row's own "drink water" accessible label (see toggle-habit.yaml).
+  - tap:
+      x: 0.93
+      y: 0.143
+  - await: { visible: { text: selected } }
+  - echo: "Persistence check: restart app, expect done state to survive"
+  - launch: com.robbywh.habittracker
+  - await: { visible: { text: selected } }
+  - await: { idle: true }
+  - echo: Done state persisted. Tap toggle again to mark not done
+  - tap:
+      id: checkmark
+  - tool: await-ui-element
+    args:
+      condition: hidden
+      selector:
+        text: selected
+  - echo: Not-done restored. Navigate to Manage Habits to delete seeded habit
+  - tap:
+      id: list.bullet
+  - await: { visible: { text: drink water } }
+  - await: { idle: true }
+  - tap:
+      id: trash
+  - await: { visible: { text: Delete habit? } }
+  - await: { idle: true }
+  - tap:
+      text: Delete
+  - await: { visible: { text: No habits yet } }
+  - await: { idle: true }
