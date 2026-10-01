@@ -1,0 +1,63 @@
+steps:
+  - echo: Restart Habit Tracker. Expect the Today tab with no habits
+  - launch: com.robbywh.habittracker
+  - await: { visible: { text: No habits yet } }
+  - await: { idle: true }
+  - echo: On Today tab with no habits. Navigate to Manage Habits
+  - tap:
+      id: list.bullet
+  - await: { visible: { text: Tap + to add your first habit. } }
+  - await: { idle: true }
+  - echo: On Manage Habits with no habits. Tap + to open New Habit
+  - tap:
+      id: plus
+  - await: { visible: { text: New Habit } }
+  - await: { idle: true }
+  - echo: On New Habit form. Focus Name field and type habit name
+  - tap:
+      text: e.g. Drink water
+  # delayMs: 300 reduces, but does not reliably eliminate, iOS autocorrect
+  # racing synthetic keystrokes around space characters — observed producing
+  # "I waterd" at full speed and still occasionally "Do water" at 150-300ms.
+  # The retry below gives one corrective re-attempt at a longer delay before
+  # the hard check fails the run, so this shared fixture (composed by every
+  # other flow via `run:`) doesn't create a wrongly-named habit.
+  - tool: keyboard
+    args:
+      text: Drink water
+      delayMs: 300
+  - when: { hidden: { text: drink water } }
+    steps:
+      - tap:
+          x: 0.9
+          y: 0.224
+      - tap:
+          text: Select All
+      - tool: keyboard
+        args:
+          key: backspace
+      - tool: keyboard
+        args:
+          text: Drink water
+          delayMs: 400
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: drink water
+  - echo: Name entered, default red color selected. Tap Create Habit
+  # Coordinate fallback: the Create Habit control's accessible label duplicates
+  # onto its own text child, and its runner role collides with the Name field's,
+  # so no id/text/role selector resolves it uniquely (checked with
+  # native-find-views: no accessibilityIdentifier, two "Create Habit"-labeled
+  # nodes). Verified twice live before keeping this raw tap.
+  - tap:
+      x: 0.5
+      y: 0.386
+  - await: { visible: { text: drink water } }
+  - await: { idle: true }
+  - echo: Habit created and listed. Verify it also appears on Today tab
+  - tap:
+      id: checkmark.circle
+  - await: { visible: { text: drink water } }
+  - await: { idle: true }

@@ -46,3 +46,6 @@ yarn-error.*
 # Claude Code local skills cache
 /.agents/
 /skills-lock.json
+
+# argent e2e artifacts
+/e2e-artifacts

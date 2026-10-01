@@ -1,0 +1,147 @@
+steps:
+  - echo: "QA: edit habit name/color. Verify cancel discards and save persists"
+  - run: create-habit
+  - echo: On Today. Navigate to Manage Habits
+  - tap:
+      id: list.bullet
+  - await: { visible: { text: drink water } }
+  - await: { idle: true }
+  - echo: Tap the drink water row to open Edit Habit
+  # Coordinate fallback: the row is one merged accessible element ("drink
+  # water, Delete drink water") whose runner role collides with another
+  # element on this screen (same pattern as create-habit.yaml's Create
+  # Habit button) — no id/text/role selector resolves it uniquely.
+  - tap:
+      x: 0.3
+      y: 0.145
+  - await: { visible: { text: Edit Habit } }
+  - await: { idle: true }
+  - echo: On Edit Habit, prefilled drink water. Change name without saving
+  # Point tap to place the cursor in the prefilled field, then the iOS
+  # text-selection callout's "Select All" (a system popup, not an app
+  # accessibility element).
+  - tap:
+      x: 0.9
+      y: 0.224
+  - tap:
+      text: Select All
+  - tool: keyboard
+    args:
+      key: backspace
+  # delayMs: 300 reduces, but does not reliably eliminate, iOS autocorrect
+  # racing synthetic keystrokes around space characters (observed garbling
+  # multi-word names even at 300ms — see create-habit.yaml for the
+  # single-word case). The retry below gives one corrective re-attempt at a
+  # longer delay before the hard check fails the run.
+  - tool: keyboard
+    args:
+      text: Temp name
+      delayMs: 300
+  - when: { hidden: { text: temp name } }
+    steps:
+      - tap:
+          x: 0.9
+          y: 0.224
+      - tap:
+          text: Select All
+      - tool: keyboard
+        args:
+          key: backspace
+      - tool: keyboard
+        args:
+          text: Temp name
+          delayMs: 400
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: temp name
+  - echo: Field shows temp name. Tap Cancel to discard
+  # Coordinate fallback: Cancel shares the same role-collision pattern as
+  # Create Habit / Save Changes — no id/text/role selector resolves it
+  # uniquely.
+  - tap:
+      x: 0.5
+      y: 0.454
+  - await: { visible: { text: drink water } }
+  - await: { hidden: { text: temp name } }
+  - await: { idle: true }
+  - echo: Cancel verified — list unchanged. Re-open Edit Habit to perform the real edit
+  - tap:
+      x: 0.3
+      y: 0.145
+  - await: { visible: { text: Edit Habit } }
+  - await: { idle: true }
+  - echo: Clear Name field for the real edit
+  - tap:
+      x: 0.9
+      y: 0.224
+  - tap:
+      text: Select All
+  - tool: keyboard
+    args:
+      key: backspace
+  # delayMs: 300 reduces, but does not reliably eliminate, iOS autocorrect
+  # racing synthetic keystrokes around space characters — this is the exact
+  # corruption caught in production ("Drink more water" saved as "Do water"),
+  # reproduced again at 300ms. The retry below gives one corrective
+  # re-attempt at a longer delay before the hard check fails the run, so a
+  # wrongly-named habit is never saved and the failure is caught here rather
+  # than several steps later.
+  - tool: keyboard
+    args:
+      text: Drink more water
+      delayMs: 300
+  - when: { hidden: { text: drink more water } }
+    steps:
+      - tap:
+          x: 0.9
+          y: 0.224
+      - tap:
+          text: Select All
+      - tool: keyboard
+        args:
+          key: backspace
+      - tool: keyboard
+        args:
+          text: Drink more water
+          delayMs: 400
+  - tool: await-ui-element
+    args:
+      condition: visible
+      selector:
+        text: drink more water
+  - echo: Name updated. Select blue color
+  - tap:
+      text: "Color #0EA5E9"
+  - echo: Blue selected. Tap Save Changes
+  - tap:
+      x: 0.5
+      y: 0.386
+  - await: { visible: { text: drink more water } }
+  # "drink water" is not a substring of "drink more water", so this proves
+  # the old name was actually replaced rather than just coexisting.
+  - await: { hidden: { text: drink water } }
+  - await: { idle: true }
+  - echo: Saved and verified on Manage Habits. Verify also on Today
+  - tap:
+      id: checkmark.circle
+  - await: { visible: { text: drink more water } }
+  - await: { idle: true }
+  - echo: "Persistence check: restart app, expect edit to survive on Today"
+  - launch: com.robbywh.habittracker
+  - await: { visible: { text: drink more water } }
+  - await: { idle: true }
+  - echo: Persisted on Today. Navigate to Manage Habits to confirm and clean up
+  - tap:
+      id: list.bullet
+  - await: { visible: { text: drink more water } }
+  - await: { idle: true }
+  - tap:
+      id: trash
+  - await: { visible: { text: Delete habit? } }
+  - await: { idle: true }
+  - tap:
+      text: Delete
+  - await: { visible: { text: No habits yet } }
+  - await: { idle: true }
